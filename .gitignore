@@ -1,0 +1,103 @@
+# =======================================
+# Python Genel
+# =======================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+.Python
+
+# Sanal Ortamlar (virtualenv, venv, conda)
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Test Sonuçları / Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+coverage.xml
+*.cover
+*.py,cover
+*.hypothesis/
+
+# =======================================
+# Airflow
+# =======================================
+# Airflow logları, pid dosyaları ve geçici dosyalar
+airflow/logs/
+airflow/tmp/
+airflow/__pycache__/
+**/dags/__pycache__/
+**/plugins/__pycache__/
+
+# =======================================
+# PostgreSQL / Docker / Veritabanı
+# =======================================
+*.db
+*.sqlite3
+*.sqlite
+*.sql-journal
+
+# =======================================
+# Ortam Değişkenleri
+# =======================================
+.env
+.env.*
+*.env.local
+*.envrc
+secrets.json
+
+# =======================================
+# IDE / Editor Ayarları
+# =======================================
+.idea/
+.vscode/
+*.iml
+
+# =======================================
+# Çıktılar / Geçici Dosyalar
+# =======================================
+charts_out/
+tmp/
+*.log
+*.out
+*.bak
+*.swp
+*.swo
+
+# =======================================
+# Sistem Dosyaları
+# =======================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =======================================
+# Dokümantasyon / Build
+# =======================================
+docs/build/
+docs/_build/
+build/
+dist/
+*.egg-info/
+
+# =======================================
+# PyInstaller
+# =======================================
+*.manifest
+*.spec

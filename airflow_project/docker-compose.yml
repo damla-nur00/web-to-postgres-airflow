@@ -1,0 +1,76 @@
+version: "3.8"
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.9.3
+  user: "${AIRFLOW_UID:-50000}:0"
+  env_file:
+    - .env
+  environment:
+    PYTHONPATH: /opt/airflow:/opt/airflow/src
+    _PIP_ADDITIONAL_REQUIREMENTS: "requests pandas sqlalchemy psycopg2-binary python-dotenv web3 pendulum"
+    AIRFLOW__CORE__EXECUTOR: "CeleryExecutor"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: "UTC"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@metadata-db:5432/airflow"
+    AIRFLOW__CELERY__RESULT_BACKEND: "db+postgresql://airflow:airflow@metadata-db:5432/airflow"
+    AIRFLOW__CELERY__BROKER_URL: "redis://redis:6379/0"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./src:/opt/airflow/src
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./.env:/opt/airflow/.env
+    - ./docs:/opt/airflow/docs 
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  depends_on:
+    metadata-db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  metadata-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"   # host:container  (5433 seçtik; hostta 5432 dolu olabilir)
+  redis:
+    image: redis:7
+    expose:
+      - "6379"
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: >
+      /bin/bash -c "
+      airflow db migrate &&
+      airflow users create --username admin --password admin
+        --firstname Admin --lastname User --role Admin --email admin@example.com || true
+      "
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+  airflow-worker:
+    <<: *airflow-common
+    command: celery worker
+
+volumes:
+  pgdata:
